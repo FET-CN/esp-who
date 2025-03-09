@@ -5,6 +5,7 @@
 
 static const char *TAG = "who_camera";
 static QueueHandle_t xQueueFrameO = NULL;
+void gc0328_antiflicker(sensor_t* sensor, int mode);
 
 static void task_process_handler(void *arg)
 {
@@ -80,6 +81,8 @@ void register_camera(const pixformat_t pixel_fromat,
         s->set_hmirror(s, 0);
     } else if (s->id.PID == GC032A_PID) {
         s->set_vflip(s, 1);
+    }else if (s->id.PID == GC0328_PID){
+        gc0328_antiflicker(s, 0);
     }
 
     //initial sensors are flipped vertically and colors are a bit saturated

@@ -2,77 +2,84 @@ menu "Camera configuration"
 
     config OV7670_SUPPORT
         bool "Support OV7670 VGA"
-        default y
+        default n
         help
             Enable this option if you want to use the OV7670.
             Disable this option to save memory.
 
     config OV7725_SUPPORT
         bool "Support OV7725 VGA"
-        default y
+        default n
         help
             Enable this option if you want to use the OV7725.
             Disable this option to save memory.
 
     config NT99141_SUPPORT
         bool "Support NT99141 HD"
-        default y
+        default n
         help
             Enable this option if you want to use the NT99141.
             Disable this option to save memory.
 
     config OV2640_SUPPORT
         bool "Support OV2640 2MP"
-        default y
+        default n
         help
             Enable this option if you want to use the OV2640.
             Disable this option to save memory.
 
     config OV3660_SUPPORT
         bool "Support OV3660 3MP"
-        default y
+        default n
         help
             Enable this option if you want to use the OV3360.
             Disable this option to save memory.
 
     config OV5640_SUPPORT
         bool "Support OV5640 5MP"
-        default y
+        default n
         help
             Enable this option if you want to use the OV5640.
             Disable this option to save memory.
 
     config GC2145_SUPPORT
         bool "Support GC2145 2MP"
-        default y
+        default n
         help
             Enable this option if you want to use the GC2145.
             Disable this option to save memory.
 
     config GC032A_SUPPORT
         bool "Support GC032A VGA"
-        default y
+        default n
         help
             Enable this option if you want to use the GC032A.
             Disable this option to save memory.
 
     config GC0308_SUPPORT
         bool "Support GC0308 VGA"
-        default y
+        default n
         help
             Enable this option if you want to use the GC0308.
+            Disable this option to save memory.
+
+    config GC0328_SUPPORT
+        bool "Support GC0328 VGA"
+        default y
+        help
+            Enable this option if you want to use the GC0328.
             Disable this option to save memory.
             
     config BF3005_SUPPORT
         bool "Support BF3005(BYD3005) VGA"
-        default y
+        default n
         help
             Enable this option if you want to use the BF3005.
             Disable this option to save memory.
             
     config BF20A6_SUPPORT
         bool "Support BF20A6(BYD20A6) VGA"
-        default y
+        default n
         help
             Enable this option if you want to use the BF20A6.
             Disable this option to save memory.
@@ -104,7 +111,7 @@ menu "Camera configuration"
 
     config SC030IOT_SUPPORT
         bool "Support SC030IOT VGA"
-        default y
+        default n
         help
             Enable this option if you want to use the SC030IOT.
             Disable this option to save memory.
@@ -119,14 +126,14 @@ menu "Camera configuration"
 
     config MEGA_CCM_SUPPORT
         bool "Support MEGA CCM 5MP"
-        default y
+        default n
         help
             Enable this option if you want to use the MEGA CCM.
             Disable this option to save memory.
             
     choice SCCB_HARDWARE_I2C_PORT
         bool "I2C peripheral to use for SCCB"
-        default SCCB_HARDWARE_I2C_PORT1
+        default SCCB_HARDWARE_I2C_PORT0
 
         config SCCB_HARDWARE_I2C_PORT0
             bool "I2C0"
@@ -137,7 +144,7 @@ menu "Camera configuration"
 
     config SCCB_CLK_FREQ
     int "SCCB clk frequency"
-    default 100000
+    default 400000
     range 100000 400000
     help
         Increasing this value can reduce the initialization time of the sensor.
@@ -145,7 +152,7 @@ menu "Camera configuration"
     
     choice GC_SENSOR_WINDOW_MODE
         bool "GalaxyCore Sensor Window Mode"
-        depends on (GC2145_SUPPORT || GC032A_SUPPORT || GC0308_SUPPORT)
+        depends on (GC2145_SUPPORT || GC032A_SUPPORT || GC0308_SUPPORT || GC0328_SUPPORT)
         default GC_SENSOR_SUBSAMPLE_MODE
         help
             This option determines how to reduce the output size when the resolution you set is less than the maximum resolution.
@@ -165,7 +172,7 @@ menu "Camera configuration"
 
     choice CAMERA_TASK_PINNED_TO_CORE
         bool "Camera task pinned to core"
-        default CAMERA_CORE0
+        default CAMERA_CORE1
         help
             Pin the camera handle task to a certain core(0/1). It can also be done automatically choosing NO_AFFINITY.
 

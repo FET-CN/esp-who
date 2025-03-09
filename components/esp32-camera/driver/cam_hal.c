@@ -33,11 +33,11 @@
 #endif // ESP_IDF_VERSION_MAJOR
 #define ESP_CAMERA_ETS_PRINTF ets_printf
 
-#if CONFIG_CAMERA_TASK_STACK_SIZE
-#define CAM_TASK_STACK             CONFIG_CAMERA_TASK_STACK_SIZE
-#else
-#define CAM_TASK_STACK             (2*1024)
-#endif
+// #if CONFIG_CAMERA_TASK_STACK_SIZE
+// #define CAM_TASK_STACK             CONFIG_CAMERA_TASK_STACK_SIZE
+// #else
+#define CAM_TASK_STACK             (8*1024)
+// #endif
 
 static const char *TAG = "cam_hal";
 static cam_obj_t *cam_obj = NULL;

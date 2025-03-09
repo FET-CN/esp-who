@@ -12,6 +12,7 @@ static esp_lcd_panel_handle_t panel_handle = NULL;
 static QueueHandle_t xQueueFrameI = NULL;
 static QueueHandle_t xQueueFrameO = NULL;
 static bool gReturnFB = true;
+bool is_lcd_init = false;
 
 static void task_process_handler(void *arg)
 {
@@ -38,8 +39,13 @@ static void task_process_handler(void *arg)
     }
 }
 
-esp_err_t register_lcd(const QueueHandle_t frame_i, const QueueHandle_t frame_o, const bool return_fb)
+esp_err_t init_lcd(void)
 {
+    if(is_lcd_init){
+        ESP_LOGI(TAG, "lcd is Initialized!");
+        return ESP_OK;
+    }
+
     ESP_LOGI(TAG, "Initialize SPI bus");
     spi_bus_config_t bus_conf = {
         .sclk_io_num = BOARD_LCD_SCK,
@@ -68,7 +74,7 @@ esp_err_t register_lcd(const QueueHandle_t frame_i, const QueueHandle_t frame_o,
     // ESP_LOGI(TAG, "Install ST7789 panel driver");
     esp_lcd_panel_dev_config_t panel_config = {
         .reset_gpio_num = BOARD_LCD_RST,
-        .rgb_endian = LCD_RGB_ENDIAN_RGB,
+        .rgb_ele_order = LCD_RGB_ENDIAN_BGR,
         .bits_per_pixel = 16,
     };
     ESP_ERROR_CHECK(esp_lcd_new_panel_st7789(io_handle, &panel_config, &panel_handle));
@@ -88,12 +94,19 @@ esp_err_t register_lcd(const QueueHandle_t frame_i, const QueueHandle_t frame_o,
     app_lcd_draw_wallpaper();
     vTaskDelay(pdMS_TO_TICKS(200));
 
+    is_lcd_init = true;
+    return ESP_OK;
+}
+
+void display_task_begin(const QueueHandle_t frame_i, const QueueHandle_t frame_o, const bool return_fb)
+{
+    if(!is_lcd_init){
+        init_lcd();
+    }
     xQueueFrameI = frame_i;
     xQueueFrameO = frame_o;
     gReturnFB = return_fb;
     xTaskCreatePinnedToCore(task_process_handler, TAG, 4 * 1024, NULL, 5, NULL, 0);
-
-    return ESP_OK;
 }
 
 void app_lcd_draw_wallpaper()

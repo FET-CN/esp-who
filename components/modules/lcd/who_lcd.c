@@ -39,7 +39,7 @@ static void task_process_handler(void *arg)
     }
 }
 
-esp_err_t init_lcd(void)
+esp_err_t display_init(void)
 {
     if(is_lcd_init){
         ESP_LOGI(TAG, "lcd is Initialized!");
@@ -89,9 +89,9 @@ esp_err_t init_lcd(void)
     // turn on display
     esp_lcd_panel_disp_on_off(panel_handle, true);
 
-    app_lcd_set_color(0x000000);
+    display_set_color(0x000000);
     vTaskDelay(pdMS_TO_TICKS(200));
-    app_lcd_draw_wallpaper();
+    display_draw_logo();
     vTaskDelay(pdMS_TO_TICKS(200));
 
     is_lcd_init = true;
@@ -101,7 +101,7 @@ esp_err_t init_lcd(void)
 void display_task_begin(const QueueHandle_t frame_i, const QueueHandle_t frame_o, const bool return_fb)
 {
     if(!is_lcd_init){
-        init_lcd();
+        display_init();
     }
     xQueueFrameI = frame_i;
     xQueueFrameO = frame_o;
@@ -109,7 +109,7 @@ void display_task_begin(const QueueHandle_t frame_i, const QueueHandle_t frame_o
     xTaskCreatePinnedToCore(task_process_handler, TAG, 4 * 1024, NULL, 5, NULL, 0);
 }
 
-void app_lcd_draw_wallpaper()
+void display_draw_logo()
 {
     uint16_t *pixels = (uint16_t *)heap_caps_malloc((logo_en_320x172_lcd_width * logo_en_320x172_lcd_height) * sizeof(uint16_t), MALLOC_CAP_8BIT | MALLOC_CAP_SPIRAM);
     if (NULL == pixels)
@@ -122,7 +122,7 @@ void app_lcd_draw_wallpaper()
     heap_caps_free(pixels);
 }
 
-void app_lcd_set_color(int color)
+void display_set_color(int color)
 {
     uint16_t *buffer = (uint16_t *)malloc(BOARD_LCD_H_RES * sizeof(uint16_t));
     if (NULL == buffer)

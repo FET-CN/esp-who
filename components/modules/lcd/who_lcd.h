@@ -27,10 +27,10 @@ extern "C"
 {
 #endif
 
-    esp_err_t init(void);
+    esp_err_t display_init(void);
     void display_task_begin(const QueueHandle_t frame_i, const QueueHandle_t frame_o, const bool return_fb);
-    void app_lcd_draw_wallpaper();
-    void app_lcd_set_color(int color);
+    void display_draw_logo();
+    void display_set_color(int color);
 
 #ifdef __cplusplus
 }

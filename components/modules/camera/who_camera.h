@@ -262,6 +262,10 @@ extern "C"
                          const uint8_t fb_count,
                          const QueueHandle_t frame_o);
 
+    void who_camera_init(const pixformat_t pixel_fromat,
+                        const framesize_t frame_size,
+                        const uint8_t fb_count);
+
 #ifdef __cplusplus
 }
 #endif

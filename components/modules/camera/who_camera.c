@@ -22,6 +22,16 @@ void register_camera(const pixformat_t pixel_fromat,
                      const uint8_t fb_count,
                      const QueueHandle_t frame_o)
 {
+    who_camera_init(pixel_fromat, frame_size, fb_count);
+
+    xQueueFrameO = frame_o;
+    xTaskCreatePinnedToCore(task_process_handler, TAG, 3 * 1024, NULL, 5, NULL, 1);
+}
+
+void who_camera_init(const pixformat_t pixel_fromat,
+    const framesize_t frame_size,
+    const uint8_t fb_count)
+{
     ESP_LOGI(TAG, "Camera module is %s", CAMERA_MODULE_NAME);
 
 #if CONFIG_CAMERA_MODULE_ESP_EYE || CONFIG_CAMERA_MODULE_ESP32_CAM_BOARD
@@ -90,8 +100,5 @@ void register_camera(const pixformat_t pixel_fromat,
     {
         s->set_brightness(s, 1);  //up the brightness just a bit
         s->set_saturation(s, -2); //lower the saturation
-    }
-
-    xQueueFrameO = frame_o;
-    xTaskCreatePinnedToCore(task_process_handler, TAG, 3 * 1024, NULL, 5, NULL, 1);
+    }   
 }

@@ -5,6 +5,7 @@
 #include "esp_event.h"
 #include "driver/spi_master.h"
 #include "driver/gpio.h"
+#include "esp_camera.h"
 
 #define BOARD_LCD_MOSI 37
 #define BOARD_LCD_MISO -1
@@ -31,6 +32,7 @@ extern "C"
     void display_task_begin(const QueueHandle_t frame_i, const QueueHandle_t frame_o, const bool return_fb);
     void display_draw_logo();
     void display_set_color(int color);
+    void display_draw_image(camera_fb_t *frame);
 
 #ifdef __cplusplus
 }

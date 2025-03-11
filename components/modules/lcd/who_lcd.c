@@ -90,9 +90,9 @@ esp_err_t display_init(void)
     esp_lcd_panel_disp_on_off(panel_handle, true);
 
     display_set_color(0x000000);
-    vTaskDelay(pdMS_TO_TICKS(200));
-    display_draw_logo();
-    vTaskDelay(pdMS_TO_TICKS(200));
+    // vTaskDelay(pdMS_TO_TICKS(200));
+    // display_draw_logo();
+    // vTaskDelay(pdMS_TO_TICKS(200));
 
     is_lcd_init = true;
     return ESP_OK;
@@ -142,5 +142,12 @@ void display_set_color(int color)
         }
 
         free(buffer);
+    }
+}
+
+void display_draw_image(camera_fb_t *frame)
+{
+    if(panel_handle){
+        esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, frame->width, frame->height, (uint16_t *)frame->buf);
     }
 }

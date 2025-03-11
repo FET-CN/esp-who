@@ -22,13 +22,13 @@ void register_camera(const pixformat_t pixel_fromat,
                      const uint8_t fb_count,
                      const QueueHandle_t frame_o)
 {
-    who_camera_init(pixel_fromat, frame_size, fb_count);
+    camera_init(pixel_fromat, frame_size, fb_count);
 
     xQueueFrameO = frame_o;
     xTaskCreatePinnedToCore(task_process_handler, TAG, 3 * 1024, NULL, 5, NULL, 1);
 }
 
-void who_camera_init(const pixformat_t pixel_fromat,
+void camera_init(const pixformat_t pixel_fromat,
     const framesize_t frame_size,
     const uint8_t fb_count)
 {

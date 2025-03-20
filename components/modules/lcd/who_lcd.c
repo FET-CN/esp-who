@@ -1,5 +1,4 @@
 #include "who_lcd.h"
-#include "esp_camera.h"
 #include <string.h>
 #include "logo_en_320x172_lcd.h"
 #include "esp_lcd_panel_io.h"
@@ -13,40 +12,21 @@ static QueueHandle_t xQueueFrameI = NULL;
 static QueueHandle_t xQueueFrameO = NULL;
 static bool gReturnFB = true;
 bool is_lcd_init = false;
+lcd_t *lcd = NULL;
 
-static void task_process_handler(void *arg)
+static bool on_color_trans_done_cb(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx)
 {
-    camera_fb_t *frame = NULL;
+    lcd_t *lcd = (lcd_t *) user_ctx;
 
-    while (true)
-    {
-        if (xQueueReceive(xQueueFrameI, &frame, portMAX_DELAY))
-        {
-            esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, frame->width, frame->height, (uint16_t *)frame->buf);
-            if (xQueueFrameO)
-            {
-                xQueueSend(xQueueFrameO, &frame, portMAX_DELAY);
-            }
-            else if (gReturnFB)
-            {
-                esp_camera_fb_return(frame);
-            }
-            else
-            {
-                free(frame);
-            }
-        }
+    if (lcd->transfer_done_cb != NULL){
+        lcd->transfer_done_cb(lcd->transfer_done_user_data);
     }
+
+    return false;
 }
 
-esp_err_t display_init(void)
+static void lcd_SPI_init(void)
 {
-    if(is_lcd_init){
-        ESP_LOGI(TAG, "lcd is Initialized!");
-        return ESP_OK;
-    }
-
-    ESP_LOGI(TAG, "Initialize SPI bus");
     spi_bus_config_t bus_conf = {
         .sclk_io_num = BOARD_LCD_SCK,
         .mosi_io_num = BOARD_LCD_MOSI,
@@ -56,60 +36,97 @@ esp_err_t display_init(void)
         .max_transfer_sz = BOARD_LCD_H_RES * BOARD_LCD_V_RES * sizeof(uint16_t),
     };
     ESP_ERROR_CHECK(spi_bus_initialize(SPI2_HOST, &bus_conf, SPI_DMA_CH_AUTO));
+    lcd->bus_initialized = true;
+}
 
-    ESP_LOGI(TAG, "Install panel IO");
-    esp_lcd_panel_io_handle_t io_handle = NULL;
-    esp_lcd_panel_io_spi_config_t io_config = {
-        .dc_gpio_num = BOARD_LCD_DC,
-        .cs_gpio_num = BOARD_LCD_CS,
-        .pclk_hz = BOARD_LCD_PIXEL_CLOCK_HZ,
-        .lcd_cmd_bits = BOARD_LCD_CMD_BITS,
-        .lcd_param_bits = BOARD_LCD_PARAM_BITS,
-        .spi_mode = 0,
-        .trans_queue_depth = 10,
-    };
-    // Attach the LCD to the SPI bus
-    ESP_ERROR_CHECK(esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)SPI2_HOST, &io_config, &io_handle));
+static void lcd_SPI_deinit(void)
+{
+    if (lcd->bus_initialized){
+        esp_err_t result = spi_bus_free(SPI2_HOST);
+        lcd->bus_initialized = false;
+    }
+}
 
-    // ESP_LOGI(TAG, "Install ST7789 panel driver");
-    esp_lcd_panel_dev_config_t panel_config = {
-        .reset_gpio_num = BOARD_LCD_RST,
-        .rgb_ele_order = LCD_RGB_ENDIAN_BGR,
-        .bits_per_pixel = 16,
-    };
-    ESP_ERROR_CHECK(esp_lcd_new_panel_st7789(io_handle, &panel_config, &panel_handle));
-    ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
-    ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
+esp_err_t lcd_init(void)
+{
+    if(!lcd){
+        lcd = calloc(1, sizeof(lcd_t));
 
-    ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel_handle, false));
-    ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(panel_handle, true));
-	ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, true, true));
-    ESP_ERROR_CHECK(esp_lcd_panel_set_gap(panel_handle, 0, 34));
+        lcd_SPI_init();
+        lcd->bus_initialized = true;
 
-    // turn on display
-    esp_lcd_panel_disp_on_off(panel_handle, true);
+        esp_lcd_panel_io_spi_config_t io_config = {
+            .dc_gpio_num = BOARD_LCD_DC,
+            .cs_gpio_num = BOARD_LCD_CS,
+            .pclk_hz = BOARD_LCD_PIXEL_CLOCK_HZ,
+            .lcd_cmd_bits = BOARD_LCD_CMD_BITS,
+            .lcd_param_bits = BOARD_LCD_PARAM_BITS,
+            .spi_mode = 0,
+            .trans_queue_depth = 10,
+            .on_color_trans_done = on_color_trans_done_cb,
+            .user_ctx = lcd,
+        };
+    
+        ESP_ERROR_CHECK(esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)SPI2_HOST, &io_config, &lcd->io_handle));
+    
+        esp_lcd_panel_dev_config_t panel_config = {
+            .reset_gpio_num = BOARD_LCD_RST,
+            .rgb_ele_order = BOARD_LCD_RGB_ELE_ORDER,
+            .bits_per_pixel = 16,
+        };
+    
+        ESP_ERROR_CHECK(esp_lcd_new_panel_st7789(lcd->io_handle, &panel_config, &lcd->panel));
+        ESP_ERROR_CHECK(esp_lcd_panel_reset(lcd->panel));
+        ESP_ERROR_CHECK(esp_lcd_panel_init(lcd->panel));
+    
+        ESP_ERROR_CHECK(esp_lcd_panel_invert_color(lcd->panel, BOARD_LCD_INVERT));
+        ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(lcd->panel, BOARD_LCD_SWAP_XY));
+        ESP_ERROR_CHECK(esp_lcd_panel_mirror(lcd->panel, BOARD_LCD_MIRROR_X, BOARD_LCD_MIRROR_Y));
+        ESP_ERROR_CHECK(esp_lcd_panel_set_gap(lcd->panel, BOARD_LCD_GAP_X, BOARD_LCD_GAP_Y));
+    
+        lcd_set_color(GUI_Black);
+    
+        if (BOARD_LCD_BL >= 0) {
+            gpio_config_t io_conf = {
+                .mode = GPIO_MODE_OUTPUT,
+                .pin_bit_mask = 1ULL << BOARD_LCD_BL,
+            };
+            gpio_config(&io_conf);
+            gpio_set_level(BOARD_LCD_BL, 1);
+        }
+    
+        ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(lcd->panel, true));
+    }
 
-    display_set_color(0x000000);
-    // vTaskDelay(pdMS_TO_TICKS(200));
-    // display_draw_logo();
-    // vTaskDelay(pdMS_TO_TICKS(200));
-
-    is_lcd_init = true;
     return ESP_OK;
 }
 
-void display_task_begin(const QueueHandle_t frame_i, const QueueHandle_t frame_o, const bool return_fb)
+esp_err_t lcd_deinit(void)
 {
-    if(!is_lcd_init){
-        display_init();
+    if(lcd){
+        if(lcd->panel != NULL){
+            ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(lcd->panel, false));
+            ESP_ERROR_CHECK(esp_lcd_panel_del(lcd->panel));
+            lcd->panel = NULL;
+        }
+    
+        if(lcd->io_handle != NULL){
+            ESP_ERROR_CHECK(esp_lcd_panel_io_del(lcd->io_handle));
+            lcd->io_handle = NULL;
+            lcd_SPI_deinit();
+        }
+
+        free(lcd);
+
+        if (BOARD_LCD_BL >= 0) {
+            gpio_set_level(BOARD_LCD_BL, 0);
+        }
     }
-    xQueueFrameI = frame_i;
-    xQueueFrameO = frame_o;
-    gReturnFB = return_fb;
-    xTaskCreatePinnedToCore(task_process_handler, TAG, 4 * 1024, NULL, 5, NULL, 0);
+
+    return ESP_OK;
 }
 
-void display_draw_logo()
+void lcd_draw_logo(void)
 {
     uint16_t *pixels = (uint16_t *)heap_caps_malloc((logo_en_320x172_lcd_width * logo_en_320x172_lcd_height) * sizeof(uint16_t), MALLOC_CAP_8BIT | MALLOC_CAP_SPIRAM);
     if (NULL == pixels)
@@ -118,36 +135,35 @@ void display_draw_logo()
         return;
     }
     memcpy(pixels, logo_en_320x172_lcd, (logo_en_320x172_lcd_width * logo_en_320x172_lcd_height) * sizeof(uint16_t));
-    esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, logo_en_320x172_lcd_width, logo_en_320x172_lcd_height, (uint16_t *)pixels);
+    esp_lcd_panel_draw_bitmap(lcd->panel, 0, 0, logo_en_320x172_lcd_width, logo_en_320x172_lcd_height, (uint16_t *)pixels);
     heap_caps_free(pixels);
 }
 
-void display_set_color(int color)
+void lcd_set_color(int color)
 {
     uint16_t *buffer = (uint16_t *)malloc(BOARD_LCD_H_RES * sizeof(uint16_t));
-    if (NULL == buffer)
-    {
+    if (NULL == buffer){
         ESP_LOGE(TAG, "Memory for bitmap is not enough");
     }
-    else
-    {
-        for (size_t i = 0; i < BOARD_LCD_H_RES; i++)
-        {
+    else{
+        for (size_t i = 0; i < BOARD_LCD_H_RES; i++){
             buffer[i] = color;
         }
 
-        for (int y = 0; y < BOARD_LCD_V_RES; y++)
-        {
-            esp_lcd_panel_draw_bitmap(panel_handle, 0, y, BOARD_LCD_H_RES, y+1, buffer);
+        for (int y = 0; y < BOARD_LCD_V_RES; y++){
+            esp_lcd_panel_draw_bitmap(lcd->panel, 0, y, BOARD_LCD_H_RES, y+1, buffer);
         }
 
         free(buffer);
     }
 }
 
-void display_draw_image(camera_fb_t *frame)
+void lcd_draw_image(int x, int y, int width, int height, const void *buff)
 {
-    if(panel_handle){
-        esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, frame->width, frame->height, (uint16_t *)frame->buf);
-    }
+    esp_lcd_panel_draw_bitmap(lcd->panel, x, y, width, height, (uint16_t *)buff);
+}
+
+lcd_t* get_lcd_handle(void)
+{
+    return lcd;
 }

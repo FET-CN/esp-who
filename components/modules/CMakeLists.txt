@@ -5,12 +5,12 @@ set(embed_files "web/www/index_ov2640.html.gz"
 
 set(src_dirs    ai
                 camera
-                # lcd
+                lcd
                 web)
 
 set(include_dirs    ai
                     camera
-                    # lcd
+                    lcd
                     web)
 
 set(requires    esp-dl

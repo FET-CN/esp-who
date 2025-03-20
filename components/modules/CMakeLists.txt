@@ -3,12 +3,14 @@ set(embed_files "web/www/index_ov2640.html.gz"
                 "web/www/index_ov5640.html.gz"
                 "web/www/monitor.html.gz")
 
-set(src_dirs    ai
+set(src_dirs    
+                # ai
                 camera
                 lcd
                 web)
 
-set(include_dirs    ai
+set(include_dirs    
+                    # ai
                     camera
                     lcd
                     web)

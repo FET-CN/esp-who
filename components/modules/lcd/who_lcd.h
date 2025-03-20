@@ -94,7 +94,7 @@ extern "C"
 
 typedef void (*transfer_done_cb_t)(void *);
 
-typedef struct lcd_t
+typedef struct _lcd_t
 {
     bool bus_initialized;
 
@@ -110,7 +110,7 @@ esp_err_t lcd_deinit(void);
 void lcd_draw_logo(void);
 void lcd_set_color(int color);
 void lcd_draw_image(int x, int y, int width, int height, const void *buff);
-lcd_t* get_lcd_handle(viod);
+lcd_t *get_lcd_handle(viod);
 
 #ifdef __cplusplus
 }

@@ -7,10 +7,6 @@
 
 static const char *TAG = "who_lcd";
 
-static esp_lcd_panel_handle_t panel_handle = NULL;
-static QueueHandle_t xQueueFrameI = NULL;
-static QueueHandle_t xQueueFrameO = NULL;
-static bool gReturnFB = true;
 bool is_lcd_init = false;
 lcd_t *lcd = NULL;
 
@@ -42,7 +38,7 @@ static void lcd_SPI_init(void)
 static void lcd_SPI_deinit(void)
 {
     if (lcd->bus_initialized){
-        esp_err_t result = spi_bus_free(SPI2_HOST);
+        ESP_ERROR_CHECK(spi_bus_free(SPI2_HOST));
         lcd->bus_initialized = false;
     }
 }
@@ -163,7 +159,7 @@ void lcd_draw_image(int x, int y, int width, int height, const void *buff)
     esp_lcd_panel_draw_bitmap(lcd->panel, x, y, width, height, (uint16_t *)buff);
 }
 
-lcd_t* get_lcd_handle(void)
+lcd_t *get_lcd_handle(void)
 {
     return lcd;
 }

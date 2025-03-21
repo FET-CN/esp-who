@@ -156,7 +156,7 @@ void lcd_set_color(int color)
 
 void lcd_draw_image(int x, int y, int width, int height, const void *buff)
 {
-    esp_lcd_panel_draw_bitmap(lcd->panel, x, y, width, height, (uint16_t *)buff);
+    esp_lcd_panel_draw_bitmap(lcd->panel, x, y, (width > 320)? 320 : width, (height > 172)? 172 : height, (uint16_t *)buff);
 }
 
 lcd_t *get_lcd_handle(void)

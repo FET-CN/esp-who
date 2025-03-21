@@ -4,13 +4,13 @@ set(embed_files "web/www/index_ov2640.html.gz"
                 "web/www/monitor.html.gz")
 
 set(src_dirs    
-                # ai
+                ai
                 camera
                 lcd
                 web)
 
 set(include_dirs    
-                    # ai
+                    ai
                     camera
                     lcd
                     web)

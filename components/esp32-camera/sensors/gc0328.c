@@ -200,13 +200,7 @@ static int set_framesize(sensor_t *sensor, framesize_t framesize)
     (void)row_s;
     (void)col_s;
 
-    if ((w == 320) && (h == 172)) {
-        regs = qvga_config_321_172;
-        w=320;
-        h=172;
-
-    } 
-    else if ((w <= 320) && (h <= 240)) {
+    if ((w <= 320) && (h <= 240)) {
         regs = qvga_config;
         w=320;
         h=240;

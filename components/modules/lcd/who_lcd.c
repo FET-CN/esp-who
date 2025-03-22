@@ -4,11 +4,17 @@
 #include "esp_lcd_panel_io.h"
 #include "esp_lcd_panel_vendor.h"
 #include "esp_lcd_panel_ops.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/queue.h"
+#include "esp_camera.h"
 
 static const char *TAG = "who_lcd";
 
 bool is_lcd_init = false;
 lcd_t *lcd = NULL;
+static QueueHandle_t xQueueFrameI = NULL;
+static QueueHandle_t xQueueFrameO = NULL;
+static bool gReturnFB = true;
 
 static bool on_color_trans_done_cb(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx)
 {
@@ -162,4 +168,34 @@ void lcd_draw_image(int x, int y, int width, int height, const void *buff)
 lcd_t *get_lcd_handle(void)
 {
     return lcd;
+}
+
+static void task_process_handler(void *arg)
+{
+    camera_fb_t *frame = NULL;
+
+    while (true){
+        if (xQueueReceive(xQueueFrameI, &frame, portMAX_DELAY)){
+            esp_lcd_panel_draw_bitmap(lcd->panel, 0, 0, (frame->width > 320)? 320 : frame->width, (frame->height > 172)? 172 : frame->height, (uint16_t *)frame->buf);
+            if (xQueueFrameO){
+                xQueueSend(xQueueFrameO, &frame, portMAX_DELAY);
+            }else if (gReturnFB){
+                esp_camera_fb_return(frame);
+            }else{
+                free(frame);
+            }
+        }
+    }
+}
+
+esp_err_t register_lcd(const QueueHandle_t frame_i, const QueueHandle_t frame_o, const bool return_fb)
+{
+    lcd_init();
+
+    xQueueFrameI = frame_i;
+    xQueueFrameO = frame_o;
+    gReturnFB = return_fb;
+    xTaskCreatePinnedToCore(task_process_handler, TAG, 4 * 1024, NULL, 5, NULL, 0);
+
+    return ESP_OK;
 }

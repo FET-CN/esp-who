@@ -103,6 +103,8 @@ extern "C"
     void camera_init(const pixformat_t pixel_fromat,
                         const framesize_t frame_size,
                         const uint8_t fb_count);
+                        
+    bool is_camera_initialized(void);
 
 #ifdef __cplusplus
 }

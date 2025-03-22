@@ -111,6 +111,7 @@ void lcd_draw_logo(void);
 void lcd_set_color(int color);
 void lcd_draw_image(int x, int y, int width, int height, const void *buff);
 lcd_t *get_lcd_handle(viod);
+esp_err_t register_lcd(const QueueHandle_t frame_i, const QueueHandle_t frame_o, const bool return_fb);
 
 #ifdef __cplusplus
 }

@@ -19,6 +19,7 @@
 #endif
 
 #include "who_ai_utils.hpp"
+#include "who_c_wrapper.h"
 
 using namespace std;
 using namespace dl;
@@ -88,6 +89,7 @@ static void task_process_handler(void *arg)
     camera_fb_t *frame = NULL;
     HumanFaceDetectMSR01 detector(0.3F, 0.3F, 10, 0.3F);
     HumanFaceDetectMNP01 detector2(0.4F, 0.3F, 10);
+    ai_msg_t msg;
 
 #if CONFIG_MFN_V1
 #if CONFIG_S8
@@ -105,7 +107,7 @@ static void task_process_handler(void *arg)
     {
         xSemaphoreTake(xMutex, portMAX_DELAY);
         _gEvent = gEvent;
-        gEvent = DETECT;
+        gEvent = DETECT; //避免一直在人脸录入和删除态
         xSemaphoreGive(xMutex);
 
         if (_gEvent)
@@ -114,13 +116,14 @@ static void task_process_handler(void *arg)
 
             if (xQueueReceive(xQueueFrameI, &frame, portMAX_DELAY))
             {
+                //先做人脸检测
                 std::list<dl::detect::result_t> &detect_candidates = detector.infer((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3});
                 std::list<dl::detect::result_t> &detect_results = detector2.infer((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3}, detect_candidates);
 
                 if (detect_results.size() == 1)
                     is_detected = true;
 
-                if (is_detected)
+                if (is_detected) //检测到人脸后再做人脸录入、识别等操作
                 {
                     switch (_gEvent)
                     {
@@ -132,7 +135,7 @@ static void task_process_handler(void *arg)
 
                     case RECOGNIZE:
                         recognize_result = recognizer->recognize((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3}, detect_results.front().keypoint);
-                        print_detection_result(detect_results);
+                        print_detection_result(detect_results, &msg);
                         if (recognize_result.id > 0)
                             ESP_LOGI("RECOGNIZE", "Similarity: %f, Match ID: %d", recognize_result.similarity, recognize_result.id);
                         else
@@ -186,9 +189,9 @@ static void task_process_handler(void *arg)
                 if (detect_results.size())
                 {
 #if !CONFIG_IDF_TARGET_ESP32S3
-                    print_detection_result(detect_results);
+                    print_detection_result(detect_results, &msg);
 #endif
-                    draw_detection_result((uint16_t *)frame->buf, frame->height, frame->width, detect_results);
+                    draw_detection_result((uint16_t *)frame->buf, frame->height, frame->width, detect_results, &msg);
                 }
             }
 
@@ -226,6 +229,10 @@ static void task_event_handler(void *arg)
     }
 }
 
+// #ifdef __cplusplus
+// extern "C" {
+// #endif 
+
 void register_human_face_recognition(const QueueHandle_t frame_i,
                                      const QueueHandle_t event,
                                      const QueueHandle_t result,
@@ -243,3 +250,7 @@ void register_human_face_recognition(const QueueHandle_t frame_i,
     if (xQueueEvent)
         xTaskCreatePinnedToCore(task_event_handler, TAG, 4 * 1024, NULL, 5, NULL, 1);
 }
+
+// #ifdef __cplusplus
+// }
+// #endif

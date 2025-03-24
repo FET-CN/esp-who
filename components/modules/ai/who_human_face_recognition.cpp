@@ -155,7 +155,7 @@ static void task_process_handler(void *arg)
                     }
                 }
 
-                if (frame_show_state != SHOW_STATE_IDLE)
+                if (frame_show_state != SHOW_STATE_IDLE) //做些打印工作
                 {
                     static int frame_count = 0;
                     switch (frame_show_state)
@@ -195,22 +195,15 @@ static void task_process_handler(void *arg)
                 }
             }
 
-            if (xQueueFrameO)
-            {
-
+            if (xQueueFrameO){
                 xQueueSend(xQueueFrameO, &frame, portMAX_DELAY);
-            }
-            else if (gReturnFB)
-            {
+            }else if (gReturnFB){
                 esp_camera_fb_return(frame);
-            }
-            else
-            {
+            }else{
                 free(frame);
             }
 
-            if (xQueueResult && is_detected)
-            {
+            if (xQueueResult && is_detected){
                 xQueueSend(xQueueResult, &recognize_result, portMAX_DELAY);
             }
         }

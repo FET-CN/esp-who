@@ -229,10 +229,6 @@ static void task_event_handler(void *arg)
     }
 }
 
-// #ifdef __cplusplus
-// extern "C" {
-// #endif 
-
 void register_human_face_recognition(const QueueHandle_t frame_i,
                                      const QueueHandle_t event,
                                      const QueueHandle_t result,
@@ -251,6 +247,3 @@ void register_human_face_recognition(const QueueHandle_t frame_i,
         xTaskCreatePinnedToCore(task_event_handler, TAG, 4 * 1024, NULL, 5, NULL, 1);
 }
 
-// #ifdef __cplusplus
-// }
-// #endif

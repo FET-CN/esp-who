@@ -29,11 +29,11 @@ void register_human_face_detection_wrapper(QueueHandle_t frame_i,
                                    QueueHandle_t frame_o,
                                    const bool camera_fb_return);
 
-// void register_human_face_recognition_wrapper(QueueHandle_t frame_i,
-//                                     QueueHandle_t event,
-//                                     QueueHandle_t result,
-//                                     QueueHandle_t frame_o,
-//                                     const bool camera_fb_return);  
+void register_human_face_recognition_wrapper(QueueHandle_t frame_i,
+                                    QueueHandle_t event,
+                                    QueueHandle_t result,
+                                    QueueHandle_t frame_o,
+                                    const bool camera_fb_return);  
                                     
 void register_motion_detection_wrapper(QueueHandle_t frame_i, QueueHandle_t event,
                                 QueueHandle_t result, QueueHandle_t frame_o);

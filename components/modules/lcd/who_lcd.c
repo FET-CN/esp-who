@@ -1,6 +1,10 @@
 #include "who_lcd.h"
 #include <string.h>
-#include "logo_en_320x172_lcd.h"
+#if CONFIG_MPYTHON_PRO_BOARD
+#include "logo_mpython_pro_320x172_lcd.h"
+#elif CONFIG_LABPLUS_LEDONG_V2_BOARD
+#include "logo_labplus_ledong_v2_320x172_lcd.h"
+#endif
 #include "esp_lcd_panel_io.h"
 #include "esp_lcd_panel_vendor.h"
 #include "esp_lcd_panel_ops.h"

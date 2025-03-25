@@ -107,7 +107,7 @@ static void task_process_handler(void *arg)
     {
         xSemaphoreTake(xMutex, portMAX_DELAY);
         _gEvent = gEvent;
-        gEvent = DETECT; //避免一直在人脸录入和删除态
+        gEvent = DETECT; //做完其它动作（添加、删除、识别）动作后，再转入人脸检测状态，因此其它态是暂态，收到相关事件后，只执行一次。
         xSemaphoreGive(xMutex);
 
         if (_gEvent)

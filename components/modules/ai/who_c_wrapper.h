@@ -21,6 +21,7 @@ typedef struct _ai_msg_t
     // bool is_detected;
     uint8_t element_num;
     int box[10][4];
+    int keypoint[10][10];
 }ai_msg_t;
 
 void register_human_face_detection_wrapper(QueueHandle_t frame_i,

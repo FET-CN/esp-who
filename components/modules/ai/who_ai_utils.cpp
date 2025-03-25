@@ -23,29 +23,32 @@ void draw_detection_result(uint16_t *image_ptr, int image_height, int image_widt
     msg->element_num = 0;
     for (std::list<dl::detect::result_t>::iterator prediction = results.begin(); prediction != results.end(); prediction++, i++)
     {
-        // if(i <= 10){ //最多10个结果
-            dl::image::draw_hollow_rectangle(image_ptr, image_height, image_width,
-                DL_MAX(prediction->box[0], 0),
-                DL_MAX(prediction->box[1], 0),
-                DL_MAX(prediction->box[2], 0),
-                DL_MAX(prediction->box[3], 0),
-                0b1110000000000111);
+        dl::image::draw_hollow_rectangle(image_ptr, image_height, image_width,
+            DL_MAX(prediction->box[0], 0),
+            DL_MAX(prediction->box[1], 0),
+            DL_MAX(prediction->box[2], 0),
+            DL_MAX(prediction->box[3], 0),
+            0b1110000000000111);
+
+        if (prediction->keypoint.size() == 10)
+        {
+            dl::image::draw_point(image_ptr, image_height, image_width, DL_MAX(prediction->keypoint[0], 0), DL_MAX(prediction->keypoint[1], 0), 4, 0b0000000011111000); // left eye
+            dl::image::draw_point(image_ptr, image_height, image_width, DL_MAX(prediction->keypoint[2], 0), DL_MAX(prediction->keypoint[3], 0), 4, 0b0000000011111000); // mouth left corner
+            dl::image::draw_point(image_ptr, image_height, image_width, DL_MAX(prediction->keypoint[4], 0), DL_MAX(prediction->keypoint[5], 0), 4, 0b1110000000000111); // nose
+            dl::image::draw_point(image_ptr, image_height, image_width, DL_MAX(prediction->keypoint[6], 0), DL_MAX(prediction->keypoint[7], 0), 4, 0b0001111100000000); // right eye
+            dl::image::draw_point(image_ptr, image_height, image_width, DL_MAX(prediction->keypoint[8], 0), DL_MAX(prediction->keypoint[9], 0), 4, 0b0001111100000000); // mouth right corner
+        }
+
+        msg->element_num++;
+        if(msg->element_num <= 10){
             msg->box[i][0] = DL_MAX(prediction->box[0], 0);
             msg->box[i][1] = DL_MAX(prediction->box[1], 0);
             msg->box[i][2] = DL_MAX(prediction->box[2], 0);
             msg->box[i][3] = DL_MAX(prediction->box[3], 0);
-
-            if (prediction->keypoint.size() == 10)
-            {
-                dl::image::draw_point(image_ptr, image_height, image_width, DL_MAX(prediction->keypoint[0], 0), DL_MAX(prediction->keypoint[1], 0), 4, 0b0000000011111000); // left eye
-                dl::image::draw_point(image_ptr, image_height, image_width, DL_MAX(prediction->keypoint[2], 0), DL_MAX(prediction->keypoint[3], 0), 4, 0b0000000011111000); // mouth left corner
-                dl::image::draw_point(image_ptr, image_height, image_width, DL_MAX(prediction->keypoint[4], 0), DL_MAX(prediction->keypoint[5], 0), 4, 0b1110000000000111); // nose
-                dl::image::draw_point(image_ptr, image_height, image_width, DL_MAX(prediction->keypoint[6], 0), DL_MAX(prediction->keypoint[7], 0), 4, 0b0001111100000000); // right eye
-                dl::image::draw_point(image_ptr, image_height, image_width, DL_MAX(prediction->keypoint[8], 0), DL_MAX(prediction->keypoint[9], 0), 4, 0b0001111100000000); // mouth right corner
-            }
-
-            msg->element_num++;
-        // }
+            // for(int j = 0; j < 10; j++){
+            //     msg->keypoint[i][j] = DL_MAX(prediction->keypoint[j], 0);
+            // }
+        }
     }
 }
 
@@ -55,30 +58,37 @@ void draw_detection_result(uint8_t *image_ptr, int image_height, int image_width
     msg->element_num = 0;
     for (std::list<dl::detect::result_t>::iterator prediction = results.begin(); prediction != results.end(); prediction++, i++)
     {
-        // if(i <= 10){ //最多10个结果
-            dl::image::draw_hollow_rectangle(image_ptr, image_height, image_width,
-                DL_MAX(prediction->box[0], 0),
-                DL_MAX(prediction->box[1], 0),
-                DL_MAX(prediction->box[2], 0),
-                DL_MAX(prediction->box[3], 0),
-                0x00FF00);
+        dl::image::draw_hollow_rectangle(image_ptr, image_height, image_width,
+            DL_MAX(prediction->box[0], 0),
+            DL_MAX(prediction->box[1], 0),
+            DL_MAX(prediction->box[2], 0),
+            DL_MAX(prediction->box[3], 0),
+            0x00FF00);
 
+        msg->box[i][0] = DL_MAX(prediction->box[0], 0);
+        msg->box[i][1] = DL_MAX(prediction->box[1], 0);
+        msg->box[i][2] = DL_MAX(prediction->box[2], 0);
+        msg->box[i][3] = DL_MAX(prediction->box[3], 0);
+
+        if (prediction->keypoint.size() == 10)
+        {
+            dl::image::draw_point(image_ptr, image_height, image_width, DL_MAX(prediction->keypoint[0], 0), DL_MAX(prediction->keypoint[1], 0), 4, 0x0000FF); // left eye
+            dl::image::draw_point(image_ptr, image_height, image_width, DL_MAX(prediction->keypoint[2], 0), DL_MAX(prediction->keypoint[3], 0), 4, 0x0000FF); // mouth left corner
+            dl::image::draw_point(image_ptr, image_height, image_width, DL_MAX(prediction->keypoint[4], 0), DL_MAX(prediction->keypoint[5], 0), 4, 0x00FF00); // nose
+            dl::image::draw_point(image_ptr, image_height, image_width, DL_MAX(prediction->keypoint[6], 0), DL_MAX(prediction->keypoint[7], 0), 4, 0xFF0000); // right eye
+            dl::image::draw_point(image_ptr, image_height, image_width, DL_MAX(prediction->keypoint[8], 0), DL_MAX(prediction->keypoint[9], 0), 4, 0xFF0000); // mouth right corner
+        }
+
+        msg->element_num++;
+        if(msg->element_num <= 10){
             msg->box[i][0] = DL_MAX(prediction->box[0], 0);
             msg->box[i][1] = DL_MAX(prediction->box[1], 0);
             msg->box[i][2] = DL_MAX(prediction->box[2], 0);
             msg->box[i][3] = DL_MAX(prediction->box[3], 0);
-
-            if (prediction->keypoint.size() == 10)
-            {
-                dl::image::draw_point(image_ptr, image_height, image_width, DL_MAX(prediction->keypoint[0], 0), DL_MAX(prediction->keypoint[1], 0), 4, 0x0000FF); // left eye
-                dl::image::draw_point(image_ptr, image_height, image_width, DL_MAX(prediction->keypoint[2], 0), DL_MAX(prediction->keypoint[3], 0), 4, 0x0000FF); // mouth left corner
-                dl::image::draw_point(image_ptr, image_height, image_width, DL_MAX(prediction->keypoint[4], 0), DL_MAX(prediction->keypoint[5], 0), 4, 0x00FF00); // nose
-                dl::image::draw_point(image_ptr, image_height, image_width, DL_MAX(prediction->keypoint[6], 0), DL_MAX(prediction->keypoint[7], 0), 4, 0xFF0000); // right eye
-                dl::image::draw_point(image_ptr, image_height, image_width, DL_MAX(prediction->keypoint[8], 0), DL_MAX(prediction->keypoint[9], 0), 4, 0xFF0000); // mouth right corner
-            }
-
-            msg->element_num++;
-        // }
+            // for(int j = 0; j < 10; j++){
+            //     msg->keypoint[i][j] = DL_MAX(prediction->keypoint[j], 0);
+            // }
+        }
     }
 }
 

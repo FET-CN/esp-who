@@ -203,8 +203,11 @@ static void task_process_handler(void *arg)
                 free(frame);
             }
 
-            if (xQueueResult && is_detected){
-                xQueueSend(xQueueResult, &recognize_result, portMAX_DELAY);
+            if (xQueueResult && recognize_result.id > 0){
+                msg.type = AI_TYPE_FACE_RECOGNITION;
+                msg.id = recognize_result.id;
+                msg.similarity = recognize_result.similarity;
+                xQueueSend(xQueueResult, &msg, portMAX_DELAY);
             }
         }
     }

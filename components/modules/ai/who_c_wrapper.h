@@ -17,11 +17,11 @@ typedef enum _ai_type_t{
 typedef struct _ai_msg_t
 {
     uint16_t type;
-    // uint16_t subtype;
-    // bool is_detected;
+    int id;
+    float similarity;
     uint8_t element_num;
-    int box[10][4];
-    int keypoint[10][10];
+    int box[5][4];
+    int keypoint[5][10];
 }ai_msg_t;
 
 void register_human_face_detection_wrapper(QueueHandle_t frame_i,

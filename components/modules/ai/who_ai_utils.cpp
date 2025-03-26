@@ -40,14 +40,14 @@ void draw_detection_result(uint16_t *image_ptr, int image_height, int image_widt
         }
 
         msg->element_num++;
-        if(msg->element_num <= 10){
+        if(msg->element_num <= 5){ //最多允许识别5个人脸
             msg->box[i][0] = DL_MAX(prediction->box[0], 0);
             msg->box[i][1] = DL_MAX(prediction->box[1], 0);
             msg->box[i][2] = DL_MAX(prediction->box[2], 0);
             msg->box[i][3] = DL_MAX(prediction->box[3], 0);
-            // for(int j = 0; j < 10; j++){
-            //     msg->keypoint[i][j] = DL_MAX(prediction->keypoint[j], 0);
-            // }
+            for(int j = 0; j < 10; j++){
+                msg->keypoint[i][j] = DL_MAX(prediction->keypoint[j], 0);
+            }
         }
     }
 }
@@ -80,14 +80,14 @@ void draw_detection_result(uint8_t *image_ptr, int image_height, int image_width
         }
 
         msg->element_num++;
-        if(msg->element_num <= 10){
+        if(msg->element_num <= 5){
             msg->box[i][0] = DL_MAX(prediction->box[0], 0);
             msg->box[i][1] = DL_MAX(prediction->box[1], 0);
             msg->box[i][2] = DL_MAX(prediction->box[2], 0);
             msg->box[i][3] = DL_MAX(prediction->box[3], 0);
-            // for(int j = 0; j < 10; j++){
-            //     msg->keypoint[i][j] = DL_MAX(prediction->keypoint[j], 0);
-            // }
+            for(int j = 0; j < 10; j++){
+                msg->keypoint[i][j] = DL_MAX(prediction->keypoint[j], 0);
+            }
         }
     }
 }

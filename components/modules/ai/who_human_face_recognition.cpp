@@ -123,6 +123,8 @@ static void task_process_handler(void *arg)
                 if (detect_results.size() == 1)
                     is_detected = true;
 
+                recognize_result.id = -1;
+
                 if (is_detected) //检测到人脸后再做人脸录入、识别等操作
                 {
                     switch (_gEvent)
@@ -139,14 +141,13 @@ static void task_process_handler(void *arg)
                         if (recognize_result.id > 0)
                             ESP_LOGI("RECOGNIZE", "Similarity: %f, Match ID: %d", recognize_result.similarity, recognize_result.id);
                         else
-                            ESP_LOGE("RECOGNIZE", "Similarity: %f, Match ID: %d", recognize_result.similarity, recognize_result.id);
+                            ESP_LOGI("RECOGNIZE", "Similarity: %f, Match ID: %d", recognize_result.similarity, recognize_result.id);
                         frame_show_state = SHOW_STATE_RECOGNIZE;
                         break;
 
                     case DELETE:
                         vTaskDelay(10);
                         recognizer->delete_id(true);
-                        ESP_LOGE("DELETE", "% d IDs left", recognizer->get_enrolled_id_num());
                         frame_show_state = SHOW_STATE_DELETE;
                         break;
 
@@ -204,6 +205,7 @@ static void task_process_handler(void *arg)
             }
 
             if (xQueueResult && recognize_result.id > 0){
+                ESP_LOGE("recognize", "id: % d", recognize_result.id);
                 msg.type = AI_TYPE_FACE_RECOGNITION;
                 msg.id = recognize_result.id;
                 msg.similarity = recognize_result.similarity;

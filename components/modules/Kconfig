@@ -86,6 +86,10 @@ menu "ESP-WHO Configuration"
                 bool "Custom Camera Pinout"
             config CAMERA_MODULE_LABPLUS_LEDONG_V2_BOARD
                 bool "labplus_Ledong_v2_Pinout"
+            config CAMERA_MODULE_LABPLUS_XUNFEI_JS_PRIMARY_BOARD
+                bool "labplus_xunfei_js_primary_Pinout"
+            config CAMERA_MODULE_LABPLUS_XUNFEI_JS_MIDDLE_BOARD
+                bool "labplus_xunfei_js_middle_Pinout"
         endchoice
 
         config CAMERA_PIN_PWDN

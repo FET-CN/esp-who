@@ -4,6 +4,10 @@
 #include "logo_mpython_pro_320x172_lcd.h"
 #elif CONFIG_LABPLUS_LEDONG_V2_BOARD
 #include "logo_labplus_ledong_v2_320x172_lcd.h"
+#elif CONFIG_LABPLUS_XUNFEI_JS_PRIMARY_BOARD
+#include "logo_labplus_ledong_v2_320x172_lcd.h"
+#elif CONFIG_LABPLUS_XUNFEI_JS_MIDDLE_BOARD
+#include "logo_labplus_ledong_v2_320x172_lcd.h"
 #endif
 #include "esp_lcd_panel_io.h"
 #include "esp_lcd_panel_vendor.h"
@@ -16,9 +20,12 @@ static const char *TAG = "who_lcd";
 
 bool is_lcd_init = false;
 lcd_t *lcd = NULL;
+
+#if CONFIG_LABPLUS_LEDONG_V2_BOARD || CONFIG_LABPLUS_XUNFEI_JS_PRIMARY_BOARD
 static QueueHandle_t xQueueFrameI = NULL;
 static QueueHandle_t xQueueFrameO = NULL;
 static bool gReturnFB = true;
+#endif
 
 static bool on_color_trans_done_cb(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx)
 {
@@ -174,6 +181,7 @@ lcd_t *get_lcd_handle(void)
     return lcd;
 }
 
+#if CONFIG_LABPLUS_LEDONG_V2_BOARD || CONFIG_LABPLUS_XUNFEI_JS_PRIMARY_BOARD
 static void task_process_handler(void *arg)
 {
     camera_fb_t *frame = NULL;
@@ -203,3 +211,4 @@ esp_err_t register_lcd(const QueueHandle_t frame_i, const QueueHandle_t frame_o,
 
     return ESP_OK;
 }
+#endif

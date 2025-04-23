@@ -4,10 +4,8 @@
 #include "logo_mpython_pro_320x172_lcd.h"
 #elif CONFIG_LABPLUS_LEDONG_V2_BOARD
 #include "logo_labplus_ledong_v2_320x172_lcd.h"
-#elif CONFIG_LABPLUS_XUNFEI_JS_PRIMARY_BOARD
-#include "logo_labplus_ledong_v2_320x172_lcd.h"
-#elif CONFIG_LABPLUS_XUNFEI_JS_MIDDLE_BOARD
-#include "logo_labplus_ledong_v2_320x172_lcd.h"
+#elif CONFIG_LABPLUS_XUNFEI_JS_PRIMARY_BOARD || CONFIG_LABPLUS_XUNFEI_JS_MIDDLE_BOARD
+#include "logo_xunfei_320x172_lcd.h"
 #endif
 #include "esp_lcd_panel_io.h"
 #include "esp_lcd_panel_vendor.h"

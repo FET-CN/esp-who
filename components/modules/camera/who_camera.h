@@ -20,10 +20,19 @@
 #define CAMERA_PIN_SIOD 44
 #define CAMERA_PIN_SIOC 43
 
-#define CAMERA_PIN_D0 9
+// #define CAMERA_PIN_D0 9
+// #define CAMERA_PIN_D1 10
+// #define CAMERA_PIN_D2 11
+// #define CAMERA_PIN_D3 12
+// #define CAMERA_PIN_D4 13
+// #define CAMERA_PIN_D5 14
+// #define CAMERA_PIN_D6 15
+// #define CAMERA_PIN_D7 16
+
+#define CAMERA_PIN_D0 12
 #define CAMERA_PIN_D1 10
-#define CAMERA_PIN_D2 11
-#define CAMERA_PIN_D3 12
+#define CAMERA_PIN_D2 9
+#define CAMERA_PIN_D3 11
 #define CAMERA_PIN_D4 13
 #define CAMERA_PIN_D5 14
 #define CAMERA_PIN_D6 15

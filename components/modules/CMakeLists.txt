@@ -22,7 +22,8 @@ set(requires    esp-dl
                 esp_lcd
                 esp_timer
                 esp_wifi
-                fb_gfx)
+                fb_gfx
+                esp-code-scanner)
 
 idf_component_register(SRC_DIRS ${src_dirs} INCLUDE_DIRS ${include_dirs} REQUIRES ${requires} EMBED_FILES ${embed_files})
 

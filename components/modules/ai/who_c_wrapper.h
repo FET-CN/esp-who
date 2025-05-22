@@ -12,6 +12,7 @@ typedef enum _ai_type_t{
     AI_TYPE_FACE_RECOGNITION,
     AI_TYPE_CAT_FACE_DETECTION,
     AI_TYPE_MOTION_DEECTION,
+    AI_TYPE_CODE_SCANNER,
 }ai_type_t;
 
 typedef struct _ai_msg_t
@@ -20,6 +21,8 @@ typedef struct _ai_msg_t
     int id;
     float similarity;
     uint8_t element_num;
+    const char *data;
+    const char *type_name;
     int box[5][4];
     int keypoint[5][10];
 }ai_msg_t;

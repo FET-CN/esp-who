@@ -8,7 +8,7 @@
 #include "logo_xunfei_320x172_lcd.h"
 #endif
 #include "esp_lcd_panel_io.h"
-#include "esp_lcd_panel_vendor.h"
+#include "esp_lcd_panel_jd9853.h"
 #include "esp_lcd_panel_ops.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
@@ -86,8 +86,9 @@ esp_err_t lcd_init(void)
             .bits_per_pixel = 16,
         };
     
-        ESP_ERROR_CHECK(esp_lcd_new_panel_st7789(lcd->io_handle, &panel_config, &lcd->panel));
+        ESP_ERROR_CHECK(esp_lcd_new_panel_jd9853(lcd->io_handle, &panel_config, &lcd->panel));
         ESP_ERROR_CHECK(esp_lcd_panel_reset(lcd->panel));
+        vTaskDelay(pdMS_TO_TICKS(100));
         ESP_ERROR_CHECK(esp_lcd_panel_init(lcd->panel));
     
         ESP_ERROR_CHECK(esp_lcd_panel_invert_color(lcd->panel, BOARD_LCD_INVERT));

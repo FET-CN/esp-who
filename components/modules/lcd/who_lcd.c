@@ -13,6 +13,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "esp_camera.h"
+#include "driver/i2c.h"
 
 static const char *TAG = "who_lcd";
 
@@ -85,7 +86,22 @@ esp_err_t lcd_init(void)
             .rgb_ele_order = BOARD_LCD_RGB_ELE_ORDER,
             .bits_per_pixel = 16,
         };
-    
+
+        i2c_config_t conf = {
+            .mode = I2C_MODE_MASTER,
+            .sda_io_num = 44,
+            .scl_io_num = 43,
+            .sda_pullup_en = GPIO_PULLUP_ENABLE,
+            .scl_pullup_en = GPIO_PULLUP_ENABLE,
+            .master.clk_speed = 400000,
+        };
+
+        i2c_param_config(0, &conf);
+        i2c_driver_install(0, conf.mode, 0, 0, 0);
+        uint8_t reg = BOARD_STM8_CMD;
+        i2c_master_write_to_device(0, BOARD_STM8_ADDR, &reg, 1, 1000 / portTICK_PERIOD_MS);
+        i2c_driver_delete(0);
+
         ESP_ERROR_CHECK(esp_lcd_new_panel_jd9853(lcd->io_handle, &panel_config, &lcd->panel));
         ESP_ERROR_CHECK(esp_lcd_panel_reset(lcd->panel));
         vTaskDelay(pdMS_TO_TICKS(100));

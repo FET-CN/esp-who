@@ -56,6 +56,8 @@ extern "C"
     #define BOARD_LCD_GAP_X      0
     #define BOARD_LCD_GAP_Y      34
     #define BOARD_LCD_INVERT     false
+    #define BOARD_STM8_ADDR 17
+    #define BOARD_STM8_CMD 4
 #elif CONFIG_LABPLUS_XUNFEI_JS_PRIMARY_BOARD
     #define BOARD_LCD_MOSI 37
     #define BOARD_LCD_MISO -1
@@ -78,6 +80,8 @@ extern "C"
     #define BOARD_LCD_GAP_X      0
     #define BOARD_LCD_GAP_Y      34
     #define BOARD_LCD_INVERT     false
+    #define BOARD_STM8_ADDR 15
+    #define BOARD_STM8_CMD 8
 #elif CONFIG_LABPLUS_XUNFEI_JS_MIDDLE_BOARD
     #define BOARD_LCD_MOSI 37
     #define BOARD_LCD_MISO -1

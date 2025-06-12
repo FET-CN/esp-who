@@ -86,7 +86,7 @@ esp_err_t lcd_init(void)
             .rgb_ele_order = BOARD_LCD_RGB_ELE_ORDER,
             .bits_per_pixel = 16,
         };
-
+    #if CONFIG_LABPLUS_LEDONG_V2_BOARD || CONFIG_LABPLUS_XUNFEI_JS_PRIMARY_BOARD
         i2c_config_t conf = {
             .mode = I2C_MODE_MASTER,
             .sda_io_num = 44,
@@ -101,7 +101,8 @@ esp_err_t lcd_init(void)
         uint8_t reg = BOARD_STM8_CMD;
         i2c_master_write_to_device(0, BOARD_STM8_ADDR, &reg, 1, 1000 / portTICK_PERIOD_MS);
         i2c_driver_delete(0);
-
+    #endif  
+    
         ESP_ERROR_CHECK(esp_lcd_new_panel_jd9853(lcd->io_handle, &panel_config, &lcd->panel));
         ESP_ERROR_CHECK(esp_lcd_panel_reset(lcd->panel));
         vTaskDelay(pdMS_TO_TICKS(100));
